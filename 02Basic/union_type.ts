@@ -23,3 +23,11 @@ function getDbId(id: number | string) {
     id.toUpperCase();
   }
 }
+
+const data: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const data1: (number | string)[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, "10"];
+
+let seatallocation: "aisle" | "middle" | "window";
+
+seatallocation = "aisle";
+seatallocation = "middle";

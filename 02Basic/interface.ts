@@ -17,3 +17,14 @@ const user: User = {
     return 100;
   },
 };
+
+// below is reopening of interface User basically extending it
+// it's just fancy way of saying adding more properties to the interface
+interface User {
+  githubId?: string;
+}
+
+//inheritance in interface
+interface Admin extends User {
+  role: "admin" | "superadmin";
+}

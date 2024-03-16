@@ -1,0 +1,60 @@
+FROM ubuntu:22.04
+
+# Set environment variables
+ENV PATH="/usr/local/bin/nvim-linux64/bin:${PATH}"
+ENV DEBIAN_FRONTEND=noninteractive
+SHELL ["/bin/bash", "-c"]
+
+# Install dependencies
+USER root
+RUN apt-get update \
+  && apt-get install -y \
+  python3 python3-pip curl tar unzip git fontconfig build-essential ripgrep fd-find xsel make php-cli nodejs npm wget \
+  && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN useradd -m myuser \
+  && mkdir -p /home/myuser/.config/nvim \
+  && chown -R myuser:myuser /home/myuser
+
+# Switch to the non-root user
+# USER myuser
+
+# Set temporary directory for downloads
+ENV TEMP_DIR=/tmp/nvim-download
+RUN mkdir -p $TEMP_DIR
+
+# Download NeoVim to temporary location
+RUN wget -O "$TEMP_DIR/nvim-linux64.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz" \
+  && mkdir -p /usr/local/bin \
+  && tar -C /usr/local/bin -xzf "$TEMP_DIR/nvim-linux64.tar.gz" \
+  && rm -rf "$TEMP_DIR"
+
+# RUN ls /usr/local/bin
+
+# Install nerd-fonts
+RUN curl -L -o 0xProto.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/0xProto.zip \
+  && unzip 0xProto.zip -d /usr/share/fonts \
+  && fc-cache -fv \
+  && rm 0xProto.zip
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --no-interaction
+
+# Install LazyGit
+RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') \
+  && curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
+  && tar xf lazygit.tar.gz \
+  && mv lazygit /usr/local/bin \
+  && rm lazygit.tar.gz
+
+USER myuser
+
+# Install lazyVim
+RUN git clone https://github.com/jellydn/lazy-nvim-ide.git /home/myuser/.config/nvim/ \
+  && rm -rf /home/myuser/.config/nvim/.git
+
+RUN nvim --headless +PlugInstall +qall
+# Run PlugInstall in headless Neovim mode
+# CMD ["nvim", "--headless", "+PlugInstall", "+qall"]
+CMD ["nvim"]

@@ -17,3 +17,15 @@ interface GenericIdentityFn {
 
 // Generic types using type interface
 identity<GenericIdentityFn>({ brand: "a", type: "b" });
+
+//Array of generic type
+function getSearchProduct<Type>(products: Array<Type>): Type {
+  return products[0];
+}
+
+// Genrics with
+const getMoreSearchProduct = <Type>(products: Array<Type>): Type => {
+  //do some data base operation
+  const myIndex = 0;
+  return products[myIndex];
+};
